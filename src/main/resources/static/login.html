@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- meta data -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- title of site -->
+    <title>欢迎登录</title>
+    <!-- For favicon png -->
+    <link rel="shortcut icon" type="image/icon" href="assets/logo/favicon.png"/>
+
+    <!--font-awesome.min.css-->
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+    <!--animate.css-->
+    <link rel="stylesheet" href="assets/css/animate.css">
+
+    <!--bootstrap.min.css-->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <!-- bootsnav -->
+    <link rel="stylesheet" href="assets/css/bootsnav.css">
+
+    <!--style.css-->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!--responsive.css-->
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+
+<body>
+
+<div id="header">
+    <div class="container">
+        <div class="page-header">
+            <h1>实验室预约<small>微系统</small></h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <form>
+                <div class="form-group">
+                    <label for="username">工号</label>
+                    <input type="text" class="form-control" id="username" placeholder="user name">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" id="password" placeholder="password">
+                </div>
+
+
+                <button type="button" class="btn btn-default" style="width: 100%" onclick="login()">立即登录</button>
+                <p>
+                没有账号 ?
+                <a href="register.html">注册</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="js/plugins/jquery/jquery.min.js"></script>
+
+<script type="text/javascript">
+    //登录
+    function login() {
+        var username = $("#username").val();
+        var password = $("#password").val();
+
+        if (username == '' || password == '') {
+            alert("请输入用户名和密码")
+        } else {
+            $.ajax({
+                //请求方式
+                type: "POST",
+                //请求的媒体类型
+                contentType: "application/json;charset=UTF-8",
+                //请求地址
+                url: "/login",
+                //post提交，向后台传入用户名和密码
+                data:
+                    JSON.stringify(
+                        {
+                            "username": username,
+                            "password": password,
+                            "level": 0         //表示管理员
+                        }
+                    )
+                ,
+                //数据，json字符串
+                dataType: "json",
+                //请求成功
+                success: function (data) {
+
+                    console.log(data);
+                    if(data.message == '登录成功'){
+                        location.href='/cus/main.html?username='+data.username+'&uid='+data.userid;
+                    }else{
+                        alert(data.message);
+                        //刷新页面
+                        location.reload();
+                    }
+
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e.status);
+                    console.log(e.responseText);
+                }
+
+            })
+        }
+
+    }
+
+    //注册
+    function register() {
+        var username = $("#register_username").val();
+        var password = $("#register_password").val();
+        var password2 = $("#register_password2").val();
+        if (password != password2) {
+            alert("两次输入密码不一致");
+            return;
+        }
+        if (username == '' || password == '') {
+            alert("请输入用户名和密码")
+        } else {
+            $.ajax({
+                //请求方式
+                type: "POST",
+                //请求的媒体类型
+                contentType: "application/json;charset=UTF-8",
+                //请求地址
+                url: "/register",
+                //post提交，向后台传入用户名和密码
+                data:
+                    JSON.stringify(
+                        {
+                            "username": username,
+                            "password": password
+
+                        }
+                    )
+                ,
+                //数据，json字符串
+                dataType: "json",
+                //请求成功
+                success: function (data) {
+                    console.log(data);
+                    alert(data.message);
+                    //刷新页面
+                    location.href='login.html';
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e.status);
+                    console.log(e.responseText);
+                }
+
+            })
+        }
+
+    }
+</script>
+</body>
+
+</html>

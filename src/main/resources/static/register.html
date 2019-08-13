@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- meta data -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!--font-family-->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&amp;subset=devanagari,latin-ext"
+          rel="stylesheet">
+
+    <!-- title of site -->
+    <title>欢迎注册</title>
+    <!-- For favicon png -->
+    <link rel="shortcut icon" type="image/icon" href="assets/logo/favicon.png"/>
+
+    <!--font-awesome.min.css-->
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+    <!--animate.css-->
+    <link rel="stylesheet" href="assets/css/animate.css">
+
+    <!--bootstrap.min.css-->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <!-- bootsnav -->
+    <link rel="stylesheet" href="assets/css/bootsnav.css">
+
+    <!--style.css-->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!--responsive.css-->
+    <link rel="stylesheet" href="assets/css/responsive.css">
+
+    <style type="text/css">
+        .formtips{width: 200px;margin:2px;padding:2px;}
+        .onError{
+            color: red;}
+    </style>
+</head>
+
+<body>
+<div id="header">
+    <div class="container">
+        <div class="page-header">
+            <h1>实验室预约<small>微系统</small></h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <form>
+                <div class="form-group">
+                    <label for="register_username">工号</label>
+                    <input type="text" class="form-control bitian" id="register_username" placeholder="user name">
+                </div>
+                <div class="form-group">
+                    <label for="register_password">密码</label>
+                    <input type="password" class="form-control bitian" id="register_password" placeholder="password">
+                </div>
+                <div class="form-group">
+                    <label for="register_password2">确认密码</label>
+                    <input type="password" class="form-control bitian" id="register_password2" placeholder="password">
+                </div>
+                <div class="form-group">
+                    <label for="phone">联系方式</label>
+                    <input type="text" class="form-control bitian" id="phone" placeholder="phone">
+                </div>
+                <div class="form-group">
+                    <label for="realname">姓名</label>
+                    <input type="text" class="form-control bitian" id="realname" placeholder="realname">
+                </div>
+
+
+                <button type="button" class="btn btn-default" onclick="register()">立即注册</button>
+                <p>
+                    已有账号 ?
+                    <a href="login.html">登录</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="js/plugins/jquery/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+    //注册
+    function register() {
+        var username = $("#register_username").val();
+        var password = $("#register_password").val();
+        var password2 = $("#register_password2").val();
+        var phone = $("#phone").val();
+        var realname = $("#realname").val();
+        if (password != password2) {
+            alert("两次输入密码不一致");
+            return;
+        }
+        //触发所有必填项的校验
+        $(".bitian").trigger("focus");
+        //找到错误信息的个数
+        if($(".onError").length > 0){
+            return false;
+        }
+
+        if (username == '' || password == '' || phone == '' || realname == '') {
+            alert("请输入用户名和密码")
+        } else {
+            $.ajax({
+                //请求方式
+                type: "POST",
+                //请求的媒体类型
+                contentType: "application/json;charset=UTF-8",
+                //请求地址
+                url: "/register",
+                //post提交，向后台传入用户名和密码
+                data:
+                    JSON.stringify(
+                        {
+                            "username": username,
+                            "password": password,
+                            "phone":phone,
+                            "realname":realname
+                        }
+                    )
+                ,
+                //数据，json字符串
+                dataType: "json",
+                //请求成功
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 'fail') {
+                        alert(data.message);
+                    }else{
+                        alert(data.message+"请等待管理员确认，1-3个工作日");
+                        //刷新页面
+                        location.reload();
+                    }
+
+                },
+                //请求失败，包含具体的错误信息
+                error: function (e) {
+                    console.log(e.status);
+                    console.log(e.responseText);
+                }
+
+            })
+        }
+
+    }
+
+    //表单校验
+    $(function(){  //默认做一些页面初始化
+        //动态在必填项后面添加小红点
+        $(".bitian").after("<span style='color:red;'>*</span>");
+
+        //给必填项绑定事件
+        $(".bitian").blur(function(){
+            //首先获取用户当前输入的值
+            var value = this.value;
+            //清空上一次提示的信息
+            $(this).parent().find(".formtips").remove();
+
+            //判断当前的值是哪一项输入的值
+            if($(this).is("#register_username")){
+                if(value.length < 6){
+                    $(this).parent().append("<span class='formtips onError'>工号太短了</span>");
+                }else{
+                    $(this).parent().append("<span class='formtips '>工号可以使用</span>");
+                }
+            }
+
+            if($(this).is("#register_password")){
+                if(value.length < 3){
+                    $(this).parent().append("<span class='formtips onError'>,密码太短了</span>");
+                }else{
+                    $(this).parent().append("<span class='formtips '>密码够用</span>");
+                }
+            }
+            if($(this).is("#register_password2")){
+                if(value.length < 3){
+                    $(this).parent().append("<span class='formtips onError'>,密码太短了</span>");
+                }else{
+                    $(this).parent().append("<span class='formtips '>密码够用</span>");
+                }
+            }
+
+            if($(this).is("#phone")){
+                if(value.length < 11 || value.length >11){
+                    $(this).parent().append("<span class='formtips onError'>请输入11位手机号</span>");
+                }else{
+                    $(this).parent().append("<span class='formtips '>OK</span>");
+                }
+            }
+
+            if($(this).is("#realname")){
+                if(value.length < 2 || value.length > 4){
+                    $(this).parent().append("<span class='formtips onError'>请输入合法姓名</span>");
+                }else{
+                    $(this).parent().append("<span class='formtips '>OK</span>");
+                }
+            }
+        }).focus(function(){
+            $(this).triggerHandler("blur");
+        }).keyup(function(){
+            $(this).triggerHandler("blur");
+        })
+
+
+
+        //给表单提交绑定事件
+        $("form").submit(function(){
+
+        });
+    });
+</script>
+</body>
+
+</html>
